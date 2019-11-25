@@ -2,8 +2,7 @@
 
 import datetime
 import psycopg2
-
-# POSTS = [("This is the first post.", datetime.datetime.now())]
+import bleach
 
 
 def get_posts():
@@ -11,18 +10,17 @@ def get_posts():
     db = psycopg2.connect("dbname=forum")
     conn = db.cursor()
     conn.execute("SELECT content, time FROM posts ORDER BY time DESC")
-    db.close()
     return conn.fetchall()
+    db.close()  # unreachable?
 
 
 def add_post(content):
     """Add a post to the 'database' with the current timestamp."""
-    # POSTS.append((content, datetime.datetime.now()))
     db = psycopg2.connect("dbname=forum")
     conn = db.cursor()
-    conn.execute("INSERT INTO posts VALUES ('%s')", content)
+    content = bleach.clean(content)
+    conn.execute("INSERT INTO posts VALUES (%s)", (content,))
+    conn.execute("UPDATE posts SET content = 'cheese what!' WHERE content LIKE"
+                 " '%spam%'")
     db.commit()
-    count = conn.rowcount
-    print(count, "Record inserted successfully into forum posts table")
     db.close()
-
