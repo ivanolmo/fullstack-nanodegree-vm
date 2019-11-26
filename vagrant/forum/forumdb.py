@@ -18,9 +18,10 @@ def add_post(content):
     """Add a post to the 'database' with the current timestamp."""
     db = psycopg2.connect("dbname=forum")
     conn = db.cursor()
-    content = bleach.clean(content)
+    content = bleach.clean(content, strip=True)
     conn.execute("INSERT INTO posts VALUES (%s)", (content,))
-    conn.execute("UPDATE posts SET content = 'cheese what!' WHERE content LIKE"
-                 " '%spam%'")
+    conn.execute("UPDATE posts SET content = 'This message is attempted spam "
+                 "'and has automatically been removed.' WHERE content LIKE "
+                 "'%setTimeout(function()%'")
     db.commit()
     db.close()
